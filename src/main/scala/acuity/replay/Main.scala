@@ -21,9 +21,11 @@ object Main extends App with LazyLogging {
   // load the configuration from application.conf
   val config = ConfigFactory.load()
   val acuityConfig = ConfigSource.fromConfig(config.getConfig("acuity")).loadOrThrow[Configuration.Acuity]
-  println(config.getConfig("acuity"))
-  logger.info(s"Starting replay")
-  logger.info(s"Gathering dates")
+
+  val pool = Executors.newFixedThreadPool(acuityConfig.parallelism)
+  implicit val blocking: ExecutionContext = ExecutionContext.fromExecutor(pool)
+
+  logger.info(s"Starting replay, gathering dates")
 
   // extract the blob structure
   // this provides a list of base folders, each folder returned runs in parallel for blob discovery
@@ -33,7 +35,7 @@ object Main extends App with LazyLogging {
 
   // note for the event hub capture this list is in chronological order
   val client = new BlobClient(acuityConfig.blob)
-  val allBlobs = BlobDiscovery(acuityConfig, client, blobFolders)
+  val allBlobs = Await.result(BlobDiscovery(acuityConfig, client, blobFolders), 60.seconds).flatten
   logger.info(s"Found ${allBlobs.length} total blobs")
   implicit val actorSystem: ActorSystem = ActorSystem("blob-to-kafka")
 
@@ -62,8 +64,6 @@ object Main extends App with LazyLogging {
   //    actorSystem.terminate()
   //  }
 
-  val pool = Executors.newFixedThreadPool(acuityConfig.parallelism)
-  implicit val blocking: ExecutionContext = ExecutionContext.fromExecutor(pool)
   val sources = allBlobs.map { d =>
     Future {
       // block in this future till this blob is done streaming, this enforces the parallelism limit

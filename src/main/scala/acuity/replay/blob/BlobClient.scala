@@ -21,7 +21,7 @@ class BlobClient(blob: Configuration.Blob) extends BlobClientInterface {
   def getAllBlobs(containerName: String, folderPath: String): List[String] = {
     storageClient.getBlobContainerClient(containerName)
       .listBlobs(new ListBlobsOptions().setPrefix(folderPath), Duration.ofMinutes(1))
-      .asScala.map(b => s"${b.getName}").toList
+      .asScala.map(_.getName).toList
   }
 
   def readBlob(containerName: String, blob: String): BlobInputStream = {
