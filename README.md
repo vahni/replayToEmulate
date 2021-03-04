@@ -1,20 +1,24 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+Stream data from blob storage to Kafka
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+- Export env variables for the blob storage credentials and configuration
+  - e.g. `export BLOB_ACCOUNT=xyz`
+- TODO Start Kafka and create a topic
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+* Running locally: `sbt clean run`
+* Build a fat jar: `sbt clean assembly`
+* Run unit tests with coverage `sbt clean coverageOn coverage test coverageReport`
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# Configurability
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+### Defining a new blob folder structure 
+Create a new object in `BlobStructure`.  This object should define the folder structure and return folders within 
+the date range specified.  The discovery task will find all blobs that live under these folders.
+
+### Defining a new blob data format
+Create a new object in 'BlobStreamer'.  This object takes a blob file and creates a iterator of a user defined object type.
+This iterator is used to send data to Kafka via an Akk stream.
+
+In addition to above you must define a conversion routing to convert a blob entity to Kafka message TODO
