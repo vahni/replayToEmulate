@@ -5,7 +5,7 @@ Stream data from blob storage to Kafka
 - Export env variables for the blob storage credentials and configuration
   - e.g. `export BLOB_ACCOUNT=xyz`
 - Start Kafka
-  - `docker run -d --name my-kafka -p 2181:2181 -p 9092:9092 --env "ADVERTISED_HOST=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`" --env "ADVERTISED_PORT=9092" spotify/kafka`
+  - ``docker run -d --name my-kafka -p 2181:2181 -p 9092:9092 --env "ADVERTISED_HOST=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`" --env "ADVERTISED_PORT=9092" spotify/kafka``
 
 # Build and Test
 * Running locally: `sbt clean run`
