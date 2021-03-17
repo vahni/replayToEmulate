@@ -1,0 +1,19 @@
+image:
+  repo: cafcontainerregistry.azurecr.io/bdtlab-replay
+  tag: mq.test6
+
+blob:
+  account: bdtlabassetdev
+  key: ""
+  container: message-enriched
+  rootFolder: "bdtlab-asset-dev/asset-position/"
+
+kafka:
+  host: dtlab-kafka.kafka.svc.cluster.local:9092
+  outTopic: test
+
+startDate: "2021-03-04"
+endDate: "2021-03-05"
+
+parallelism: 8
+partitions: 32

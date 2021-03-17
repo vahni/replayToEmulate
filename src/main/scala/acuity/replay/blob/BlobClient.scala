@@ -2,14 +2,13 @@ package acuity.replay.blob
 
 import java.time.Duration
 import java.util.Locale
-
 import scala.jdk.CollectionConverters._
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.ListBlobsOptions
 import com.azure.storage.common.StorageSharedKeyCredential
 import acuity.replay.Configuration
+import java.io.InputStream
 
-import com.azure.storage.blob.specialized.BlobInputStream
 
 class BlobClient(blob: Configuration.Blob) extends BlobClientInterface {
 
@@ -20,13 +19,13 @@ class BlobClient(blob: Configuration.Blob) extends BlobClientInterface {
 
   def getAllBlobs(containerName: String, folderPath: String): List[String] = {
     storageClient.getBlobContainerClient(containerName)
-      .listBlobs(new ListBlobsOptions().setPrefix(folderPath), Duration.ofMinutes(1))
+      .listBlobs(new ListBlobsOptions().setPrefix(folderPath), Duration.ofNanos(blob.listTimeout.toNanos))
       .asScala.map(_.getName).toList
   }
 
-  def readBlob(containerName: String, blob: String): BlobInputStream = {
+  def readBlob(containerName: String, filePath: String): InputStream = {
     storageClient.getBlobContainerClient(containerName)
-      .getBlobClient(blob)
+      .getBlobClient(filePath)
       .getBlockBlobClient
       .openInputStream
   }

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{.Release.Name}}"
+  labels:
+    app.kubernetes.io/managed-by: {{.Release.Service | quote }}
+    app.kubernetes.io/instance: {{.Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+  annotations:
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      imagePullSecrets:
+        - name: cafcontainerregistry
+      containers:
+        - name: bdtlab-replay
+          image: {{ .Values.image.repo }}:{{ .Values.image.tag}}
+          env:
+            - name: BLOB_ACCOUNT
+              value: {{ .Values.blob.account }}
+            - name: PARALLELISM
+              value: "{{ .Values.parallelism }}"
+            - name: PARTITIONS
+              value: "{{ .Values.partitions }}"
+            - name: BLOB_KEY
+              value: {{ .Values.blob.key }}
+            - name: BLOB_CONTAINER
+              value: {{ .Values.blob.container }}
+            - name: ROOT_FOLDER
+              value: {{ .Values.blob.rootFolder }}
+            - name: START_DATE
+              value: {{ .Values.startDate }}
+            - name: END_DATE
+              value: {{ .Values.endDate }}
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.kafka.host }}
+            - name: OUTPUT_TOPIC
+              value: {{ .Values.kafka.outTopic }}

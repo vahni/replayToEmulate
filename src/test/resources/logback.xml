@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%level] [%date{ISO8601}] [%.32thread] [%logger{2}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="STDOUT"/>
+    </appender>
+
+    <logger name="akka" level="WARN"/>
+    <logger name="akka.kafka" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+
+    <root level="${LOG_LEVEL:-error}">
+        <appender-ref ref="ASYNC"/>
+    </root>
+
+</configuration>

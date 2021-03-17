@@ -23,12 +23,21 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
   "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
   "com.typesafe.akka" %% "akka-stream-typed" % akkaVersion,
+  "com.typesafe.akka" %% "akka-stream-kafka" % "2.0.7",
+
+  "org.scalatest" %% "scalatest-flatspec" % "3.2.6" % Test
 )
 
 assemblyMergeStrategy in assembly := {
-  case PathList("reference.conf") => MergeStrategy.concat
-  case x if x.endsWith("io.netty.versions.properties") => MergeStrategy.first
-  case PathList("META-INF", _ @ _*) => MergeStrategy.discard
+  case PathList("META-INF", xs@_*) =>
+    xs map(_.toLowerCase) match {
+      case "manifest.mf" :: Nil =>
+        MergeStrategy.discard
+      case ps@_ :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") =>
+        MergeStrategy.discard
+      case _ => MergeStrategy.first
+    }
+  case "reference.conf" => MergeStrategy.concat
   case _ => MergeStrategy.first
 }
 
@@ -38,9 +47,10 @@ test in assembly := {}
 mainClass in assembly := Some("acuity.replay.Main")
 assemblyJarName in assembly := "app.jar"
 
-coverageMinimum := 0
+coverageMinimum := 90
 coverageFailOnMinimum := true
 coverageHighlighting := true
 publishArtifact in Test := false
+coverageExcludedPackages := ".*Main.*;.*BlobClient.*"
 
 

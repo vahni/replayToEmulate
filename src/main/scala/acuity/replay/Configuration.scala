@@ -1,5 +1,10 @@
 package acuity.replay
 
+import scala.concurrent.duration.{Duration, FiniteDuration}
+
+/**
+ * See application.conf for comments
+ */
 object Configuration {
 
   case class Blob(
@@ -8,15 +13,29 @@ object Configuration {
                    container: String,
                    rootFolder: String,
                    structure: String,
-                   streamer: String
+                   streamer: String,
+                   listTimeout: Duration
                  )
+
+  case class Throttle(
+                       messages: Int,
+                       duration: FiniteDuration
+                     )
+
+  case class Kafka(
+                    outputTopic: String,
+                    keyPath: String,
+                    throttle: Throttle
+                  )
 
   case class Acuity(
                      blob: Blob,
+                     kafka: Kafka,
                      startDate: String,
                      endDate: String,
                      parallelism: Int,
-                     podName: String
+                     partitions: Int,
+                     streamTimeout: Duration,
                    )
 
 }

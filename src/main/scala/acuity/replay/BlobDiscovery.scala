@@ -7,6 +7,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object BlobDiscovery extends LazyLogging {
 
+  /**
+   * Get a list of all blob files under a set of given blob paths.
+   * The more the paths are broken up the faster this will run
+   *
+   * @param acuityConfig configuration object
+   * @param client       blob client for Azure API
+   * @param rootFolders  list of root folders to discover under
+   * @param ec           implicit execution context
+   * @return future to the sequence of results
+   */
   def apply(acuityConfig: Configuration.Acuity, client: BlobClientInterface,
             rootFolders: List[String])(implicit ec: ExecutionContext): Future[Seq[List[String]]] = {
     // list all blobs in each base folder
