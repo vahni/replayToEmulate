@@ -1,4 +1,4 @@
-package acuity.replay.blob
+package bdtlab.replay.blob
 
 import java.time.Duration
 import java.util.Locale
@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters._
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.ListBlobsOptions
 import com.azure.storage.common.StorageSharedKeyCredential
-import acuity.replay.Configuration
+import bdtlab.replay.Configuration
 import java.io.InputStream
 
 

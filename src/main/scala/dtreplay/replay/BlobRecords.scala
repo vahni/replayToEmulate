@@ -1,8 +1,8 @@
-package acuity.replay
+package bdtlab.replay
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.clients.producer.ProducerRecord
-import acuity.replay.Configuration.Acuity
+import bdtlab.replay.Configuration.Bdtlab
 import navicore.data.navipath.dsl.NaviPathSyntax._
 
 object BlobRecords {
@@ -14,10 +14,10 @@ object BlobRecords {
     /**
      * Convert a message to a kafka record
      *
-     * @param acuityConfig configuration object
+     * @param bdtlabConfig configuration object
      * @return ProducerRecord
      */
-    def toKafka(acuityConfig: Acuity): Option[ProducerRecord[Array[Byte], String]]
+    def toKafka(bdtlabConfig: Bdtlab): Option[ProducerRecord[Array[Byte], String]]
   }
 
   case class EhRecord(SequenceNumber: Long,
@@ -27,14 +27,14 @@ object BlobRecords {
                       Properties: Map[String, String],
                       Body: String) extends BlobRecord {
 
-    def toKafka(acuityConfig: Acuity): Option[ProducerRecord[Array[Byte], String]] = {
+    def toKafka(bdtlabConfig: Bdtlab): Option[ProducerRecord[Array[Byte], String]] = {
       logger.debug(s"got message ${Body.query[String]("$.timestamp").getOrElse("missing")}")
       try {
-        val key = Body.query[String](acuityConfig.kafka.keyPath).getOrElse {
+        val key = Body.query[String](bdtlabConfig.kafka.keyPath).getOrElse {
           logger.warn(s"Using default key for $Body")
           Body.hashCode.toString
         }
-        Some(new ProducerRecord[Array[Byte], String](acuityConfig.kafka.outputTopic,
+        Some(new ProducerRecord[Array[Byte], String](bdtlabConfig.kafka.outputTopic,
           key.getBytes("UTF8"), Body))
       } catch {
         case e: Exception =>

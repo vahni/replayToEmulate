@@ -1,4 +1,4 @@
-package acuity.replay
+package bdtlab.replay
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -28,7 +28,7 @@ object Configuration {
                     throttle: Throttle
                   )
 
-  case class Acuity(
+  case class Bdtlab(
                      blob: Blob,
                      kafka: Kafka,
                      startDate: String,

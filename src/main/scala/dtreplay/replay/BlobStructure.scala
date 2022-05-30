@@ -1,4 +1,4 @@
-package acuity.replay
+package bdtlab.replay
 
 import com.typesafe.scalalogging.LazyLogging
 import org.joda.time.format.DateTimeFormat
@@ -9,13 +9,13 @@ object BlobStructure extends LazyLogging {
   /**
    * Load the configured structure object
    *
-   * @param acuityConfig configuration object
+   * @param bdtlabConfig configuration object
    * @return list of folders
    */
-  def apply(acuityConfig: Configuration.Acuity): List[String] = {
+  def apply(bdtlabConfig: Configuration.Bdtlab): List[String] = {
     val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-    runtimeMirror.reflectModule(runtimeMirror.staticModule(acuityConfig.blob.structure))
-      .instance.asInstanceOf[BlobStructure.StructureInterface](acuityConfig)
+    runtimeMirror.reflectModule(runtimeMirror.staticModule(bdtlabConfig.blob.structure))
+      .instance.asInstanceOf[BlobStructure.StructureInterface](bdtlabConfig)
   }
 
   /**
@@ -25,7 +25,7 @@ object BlobStructure extends LazyLogging {
    */
   trait StructureInterface {
 
-    def apply(acuityConfig: Configuration.Acuity): List[String]
+    def apply(bdtlabConfig: Configuration.Bdtlab): List[String]
   }
 
   /**
@@ -34,14 +34,14 @@ object BlobStructure extends LazyLogging {
    * Event hubs store the data as partition/year/month/day/hour/min
    */
   object EventHubCapture extends StructureInterface {
-    def apply(acuityConfig: Configuration.Acuity): List[String] = {
+    def apply(bdtlabConfig: Configuration.Bdtlab): List[String] = {
       val format = DateTimeFormat.forPattern("yyyy-MM-dd")
       // currently 1 pod per partition is run, deployment is expected to be a stateful e.g. pod names xyz-0
-      val partitions = 0 until acuityConfig.partitions
+      val partitions = 0 until bdtlabConfig.partitions
       logger.info(s"Using partitions $partitions")
       partitions.map { p =>
-        Iterator.iterate(format.parseDateTime(acuityConfig.startDate))(_.plusDays(1))
-          .takeWhile(_.isBefore(format.parseDateTime(acuityConfig.endDate)))
+        Iterator.iterate(format.parseDateTime(bdtlabConfig.startDate))(_.plusDays(1))
+          .takeWhile(_.isBefore(format.parseDateTime(bdtlabConfig.endDate)))
           .map(d => s"$p/${"%04d".format(d.getYear)}/${"%02d".format(d.getMonthOfYear)}/${"%02d".format(d.getDayOfMonth)}")
           .toList
       }.toList.flatten

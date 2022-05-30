@@ -1,7 +1,7 @@
-package acuity.replay
+package bdtlab.replay
 
-import acuity.replay.BlobRecords.EhRecord
-import acuity.replay.blob.BlobClientInterface
+import bdtlab.replay.BlobRecords.EhRecord
+import bdtlab.replay.blob.BlobClientInterface
 import com.sksamuel.avro4s.{AvroOutputStream, AvroSchema}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.flatspec.AnyFlatSpec
@@ -14,7 +14,7 @@ class BlobStreamerSpec extends AnyFlatSpec {
   private var blobResults: Array[Byte] = Array.empty
 
   private val config = ConfigFactory.load()
-  private val acuityConfig = ConfigSource.fromConfig(config.getConfig("acuity")).loadOrThrow[Configuration.Acuity]
+  private val bdtlabConfig = ConfigSource.fromConfig(config.getConfig("bdtlab")).loadOrThrow[Configuration.Bdtlab]
 
   class TestClient extends BlobClientInterface {
     override def getAllBlobs(containerName: String, folderPath: String): List[String] = ???
@@ -38,7 +38,7 @@ class BlobStreamerSpec extends AnyFlatSpec {
     os.close()
     blobResults = out.toByteArray
 
-    val results = BlobStreamer(acuityConfig, new TestClient, "test").toList
+    val results = BlobStreamer(bdtlabConfig, new TestClient, "test").toList
     assert(results.length == 1)
     assert(results.head == record)
   }
@@ -51,7 +51,7 @@ class BlobStreamerSpec extends AnyFlatSpec {
     os.close()
     blobResults = out.toByteArray
 
-    val results = BlobStreamer(acuityConfig, new TestClient, "test").toList
+    val results = BlobStreamer(bdtlabConfig, new TestClient, "test").toList
     assert(results.length == 2)
     assert(results.head == record)
     assert(results(1) == record.copy(SequenceNumber = 5678))

@@ -1,8 +1,8 @@
-package acuity.replay
+package bdtlab.replay
 
 import java.util.concurrent.Executors
 
-import acuity.replay.blob.BlobClient
+import bdtlab.replay.blob.BlobClient
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
@@ -20,22 +20,22 @@ object Main extends App with LazyLogging {
 
   // load the configuration from application.conf
   val config = ConfigFactory.load()
-  val acuityConfig = ConfigSource.fromConfig(config.getConfig("acuity")).loadOrThrow[Configuration.Acuity]
+  val bdtlabConfig = ConfigSource.fromConfig(config.getConfig("bdtlab")).loadOrThrow[Configuration.Bdtlab]
 
-  val pool = Executors.newFixedThreadPool(acuityConfig.parallelism)
+  val pool = Executors.newFixedThreadPool(bdtlabConfig.parallelism)
   implicit val blocking: ExecutionContext = ExecutionContext.fromExecutor(pool)
 
-  logger.info(s"Starting replay with ${acuityConfig.parallelism} workers, gathering dates")
+  logger.info(s"Starting replay with ${bdtlabConfig.parallelism} workers, gathering dates")
 
   // extract the blob structure
   // this provides a list of base folders, each folder returned runs in parallel for blob discovery
-  val blobFolders = BlobStructure(acuityConfig)
-  logger.info(s"Found ${blobFolders.length} folders between ${acuityConfig.startDate} and ${acuityConfig.endDate}")
+  val blobFolders = BlobStructure(bdtlabConfig)
+  logger.info(s"Found ${blobFolders.length} folders between ${bdtlabConfig.startDate} and ${bdtlabConfig.endDate}")
   logger.info(s"Discovering blobs")
 
   // note for the event hub capture this list is in chronological order
-  val client = new BlobClient(acuityConfig.blob)
-  val allBlobs = Await.result(BlobDiscovery(acuityConfig, client, blobFolders), acuityConfig.blob.listTimeout).flatten
+  val client = new BlobClient(bdtlabConfig.blob)
+  val allBlobs = Await.result(BlobDiscovery(bdtlabConfig, client, blobFolders), bdtlabConfig.blob.listTimeout).flatten
   logger.info(s"Found ${allBlobs.length} total blobs")
   implicit val actorSystem: ActorSystem = ActorSystem("blob-to-kafka")
 
@@ -46,10 +46,10 @@ object Main extends App with LazyLogging {
       // otherwise we download every single file as fast as we can and memory usage explodes
       // TODO if we need to enforce causality we can only do one at a time :(
       logger.info(s"downloaded $d")
-      Await.result(Source.fromIterator(() => BlobStreamer(acuityConfig, client, d))
-        .map(_.toKafka(acuityConfig)).filter(_.isDefined).map(_.get)
-        .throttle(acuityConfig.kafka.throttle.messages, acuityConfig.kafka.throttle.duration)
-        .runWith(Producer.plainSink(settings)), acuityConfig.streamTimeout)
+      Await.result(Source.fromIterator(() => BlobStreamer(bdtlabConfig, client, d))
+        .map(_.toKafka(bdtlabConfig)).filter(_.isDefined).map(_.get)
+        .throttle(bdtlabConfig.kafka.throttle.messages, bdtlabConfig.kafka.throttle.duration)
+        .runWith(Producer.plainSink(settings)), bdtlabConfig.streamTimeout)
     }
   }
 

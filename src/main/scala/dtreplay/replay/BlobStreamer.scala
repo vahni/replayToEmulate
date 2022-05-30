@@ -1,6 +1,6 @@
-package acuity.replay
+package bdtlab.replay
 
-import acuity.replay.blob.BlobClientInterface
+import bdtlab.replay.blob.BlobClientInterface
 import com.sksamuel.avro4s.{AvroInputStream, AvroSchema}
 import scala.reflect.runtime.universe
 
@@ -9,15 +9,15 @@ object BlobStreamer {
   /**
    * Load the configured streaming object
    *
-   * @param acuityConfig configuration object
+   * @param bdtlabConfig configuration object
    * @param client       blob client for Azure API
    * @param blob         input blob file
    * @return iterator to blob file contents
    */
-  def apply(acuityConfig: Configuration.Acuity, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord] = {
+  def apply(bdtlabConfig: Configuration.Bdtlab, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord] = {
     val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-    runtimeMirror.reflectModule(runtimeMirror.staticModule(acuityConfig.blob.streamer))
-      .instance.asInstanceOf[BlobStreamer.StreamerInterface](acuityConfig, client, blob)
+    runtimeMirror.reflectModule(runtimeMirror.staticModule(bdtlabConfig.blob.streamer))
+      .instance.asInstanceOf[BlobStreamer.StreamerInterface](bdtlabConfig, client, blob)
   }
 
   /**
@@ -27,7 +27,7 @@ object BlobStreamer {
    */
   trait StreamerInterface {
 
-    def apply(acuityConfig: Configuration.Acuity, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord]
+    def apply(bdtlabConfig: Configuration.Bdtlab, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord]
   }
 
   /**
@@ -35,9 +35,9 @@ object BlobStreamer {
    *
    */
   object EventHubStreamer extends StreamerInterface {
-    def apply(acuityConfig: Configuration.Acuity, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord] = {
+    def apply(bdtlabConfig: Configuration.Bdtlab, client: BlobClientInterface, blob: String): Iterator[BlobRecords.BlobRecord] = {
       val is: AvroInputStream[BlobRecords.EhRecord] = AvroInputStream.data[BlobRecords.EhRecord].from(
-        client.readBlob(acuityConfig.blob.container, blob)
+        client.readBlob(bdtlabConfig.blob.container, blob)
       ).build(AvroSchema[BlobRecords.EhRecord])
       is.iterator
     }

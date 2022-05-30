@@ -1,4 +1,4 @@
-package acuity.replay
+package bdtlab.replay
 
 import com.typesafe.config.ConfigFactory
 import org.scalatest.flatspec.AnyFlatSpec
@@ -8,11 +8,11 @@ import pureconfig.generic.auto._
 class BlobStructureSpec extends AnyFlatSpec {
 
   private val config = ConfigFactory.load()
-  private val acuityConfig = ConfigSource.fromConfig(config.getConfig("acuity")).loadOrThrow[Configuration.Acuity]
+  private val bdtlabConfig = ConfigSource.fromConfig(config.getConfig("bdtlab")).loadOrThrow[Configuration.Bdtlab]
 
   it should "produce a folder for each day" in {
 
-    val result = BlobStructure(acuityConfig.copy(startDate = "2021-01-01", endDate = "2021-01-10"))
+    val result = BlobStructure(bdtlabConfig.copy(startDate = "2021-01-01", endDate = "2021-01-10"))
 
     assert(result.length == 9)
     assert(result.head == "0/2021/01/01")
@@ -21,7 +21,7 @@ class BlobStructureSpec extends AnyFlatSpec {
 
   it should "produce a folder from multiple partitions" in {
 
-    val result = BlobStructure(acuityConfig.copy(startDate = "2021-01-01", endDate = "2021-01-10", partitions = 2))
+    val result = BlobStructure(bdtlabConfig.copy(startDate = "2021-01-01", endDate = "2021-01-10", partitions = 2))
 
     assert(result.length == 18)
     assert(result.head == "0/2021/01/01")

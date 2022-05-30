@@ -44,7 +44,7 @@ assemblyMergeStrategy in assembly := {
 // do not run tests when building the assembly
 test in assembly := {}
 // specify the main class and jar name
-mainClass in assembly := Some("acuity.replay.Main")
+mainClass in assembly := Some("bdtlab.replay.Main")
 assemblyJarName in assembly := "app.jar"
 
 coverageMinimum := 90

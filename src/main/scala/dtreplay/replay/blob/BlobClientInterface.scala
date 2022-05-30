@@ -1,4 +1,4 @@
-package acuity.replay.blob
+package bdtlab.replay.blob
 
 import java.io.InputStream
 
